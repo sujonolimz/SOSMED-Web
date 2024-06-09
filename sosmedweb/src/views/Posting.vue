@@ -1,5 +1,5 @@
 <template>
- <div>
+  <div>
     <button
       type="button"
       class="btn btn-primary"
@@ -74,25 +74,27 @@
     <h3>Posting List</h3>
     <ul>
       <li v-for="item in allData" :key="item.postingID">
-        <div class="card" style="margin: 16px;">
-          <div class="card-header"><h5>{{ item.title }}</h5> </div>
+        <div class="card" style="margin: 16px">
+          <div class="card-header">
+            <h5>{{ item.title }}</h5>
+          </div>
           <div class="card-body">
             <p class="card-text">
               {{ item.description }}
             </p>
-            <a href="#" class="btn btn-danger" style="margin-right: 4px;">Give like</a>
+            <a href="#" class="btn btn-danger" style="margin-right: 4px"
+              >Give like</a
+            >
             <a href="#" class="btn btn-primary">Comment</a>
           </div>
-          <div class="card-footer text-body-secondary">Posted by: {{ item.createdBy }}</div>
+          <div class="card-footer text-body-secondary">
+            Posted by: {{ item.createdBy }}
+          </div>
         </div>
       </li>
     </ul>
   </div>
 </template>
-
-<script setup>
-// import posting from "@/components/js-file/posting";
-</script>
 
 <script>
 import {
@@ -104,7 +106,7 @@ import {
 import { useRouter } from "vue-router";
 
 export default {
-  name: "Home",
+  name: "Posting",
   components: {
     // DataTable,
   },
@@ -113,63 +115,7 @@ export default {
       isAdmin: false,
       postTitle: "",
       postDesc: "",
-      activeTab: "displayData",
-      isModifyMode: false,
-      isFormIDdisabled: true,
-      isEditData: false,
-      allcolumns: [
-        { title: "Form ID", data: "formID" },
-        { title: "Form Desc", data: "formDesc" },
-        { title: "Created By", data: "createdBy" },
-        {
-          title: "Created Date",
-          data: "createdDate",
-          render: (data) => {
-            if (data == null) {
-              return "";
-            }
-            const formattedDatetime = moment(data).format(
-              "YYYY-MM-DD HH:mm:ss"
-            );
-            return formattedDatetime;
-          },
-        },
-        { title: "Updated By", data: "updatedBy" },
-        {
-          title: "Updated Date",
-          data: "updatedDate",
-          render: (data) => {
-            if (data == null) {
-              return "";
-            }
-            const formattedDatetime = moment(data).format(
-              "YYYY-MM-DD HH:mm:ss"
-            );
-            return formattedDatetime;
-          },
-        },
-        {
-          title: "Actions",
-          data: null,
-          defaultContent: "", // to avoid errors if data is null
-          orderable: false,
-          searchable: false,
-          width: "150px",
-          render: (data, type, row) => {
-            const editID = "edit_" + data.formID.replace(/\s+/g, "");
-            const deleteID = "delete_" + data.formID.replace(/\s+/g, "");
-
-            return `
-              <button class="btn btn-sm btn-primary" id="${editID}" data-id="${data.formID}" >Edit <i class="fas fa-edit"></i></button>
-              <button class="btn btn-sm btn-danger" id="${deleteID}" data-id="${data.formID}" >Delete <font-awesome-icon icon="fa-solid fa-trash" size="2x" /></button>
-            `;
-          },
-        },
-      ],
       allData: [],
-      options: {
-        scrollX: true,
-      },
     };
   },
   setup() {
@@ -178,27 +124,9 @@ export default {
     return { router };
   },
   methods: {
-    enterMode(mode) {
-      if (mode == "modifyData") {
-        this.activeTab = "modifyData";
-        this.isModifyMode = true;
-        this.enableDisabledButton(true);
-        this.isFormIDdisabled = false;
-      } else {
-        this.activeTab = "displayData";
-        this.isModifyMode = false;
-        this.enableDisabledButton(false);
-        this.isFormIDdisabled = true;
-      }
-    },
     clearModifyScreen() {
       this.postTitle = "";
       this.postDesc = "";
-    },
-    onBtnBackClick() {
-      this.clearModifyScreen();
-      this.enterMode("displayData");
-      this.isEditData = false;
     },
     async getData() {
       try {
@@ -219,7 +147,6 @@ export default {
             this.allData = [];
             //Load data to datatable
             this.allData = response.content;
-            console.log(this.allData);
           } else {
             this.$swal.fire({
               icon: "warning",
@@ -291,7 +218,7 @@ export default {
 
           this.clearModifyScreen();
           // this.enterMode("displayData");
-          // this.getData();
+          this.getData();
         } else {
           this.$swal.fire({
             icon: "warning",

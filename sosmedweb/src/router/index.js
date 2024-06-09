@@ -19,7 +19,7 @@ const routes = [
     },
   },
   { path: "/login", name: "Login", component: Login },
-  { path: "/home", name: "Home", component: Home },
+  { path: "/", name: "Home", component: Home },
   { path: "/about", name: "About", component: About },
   { path: "/form", name: "Form", component: Form },
   { path: "/group", name: "Group", component: Group },
@@ -34,7 +34,7 @@ const routes = [
 ];
 
 const router = createRouter({
-  history: createMemoryHistory(),
+  history: createMemoryHistory(import.meta.env.BASE_URL),
   routes,
 });
 

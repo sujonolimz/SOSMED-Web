@@ -1,24 +1,36 @@
 <template>
   <div class="login-container">
-    <h2>Login</h2>
+    <h2 style="text-align: center;">Login</h2>
     <form @submit.prevent="onLogin">
       <div class="form-group">
-        <label for="userId">User ID</label>
-        <input type="text" v-model="userID" id="userId" />
+        <label for="userId" class="tabs-modify">User ID</label>
+        <input
+          type="text"
+          v-model="userID"
+          id="userId"
+          placeholder="input User ID"
+          autocomplete="off"
+        />
       </div>
       <div class="form-group">
-        <label for="password">Password</label>
-        <input type="password" v-model="password" id="password" />
+        <label for="password" class="tabs-modify">Password</label>
+        <input
+          type="password"
+          v-model="password"
+          id="password"
+          placeholder="input Password"
+          autocomplete="off"
+        />
       </div>
-      <button class="btn btn-outline-primary">Login</button>
+      <button class="btn btn-outline-primary" style="width: 100%">Login</button>
     </form>
   </div>
 </template>
 
 <script>
 import { ref } from "vue";
-import { login, getUserInfo } from "./js-file/auth";
-import { useRouter } from 'vue-router';
+import { login } from "./js-file/auth";
+import { useRouter } from "vue-router";
 
 export default {
   data() {
@@ -30,24 +42,40 @@ export default {
   setup() {
     const router = useRouter();
     return { router };
-
   },
   methods: {
     async onLogin() {
       if (this.userID === "" || this.password === "") {
-        alert('please input User ID and Password')
-        return
+        this.$swal.fire({
+          icon: "warning",
+          title: "Login",
+          text: "please input User ID and Password",
+          showConfirmButton: true,
+        });
+        return;
       }
 
-      var isSuccess = await login(this.userID, this.password);
-      if (isSuccess) {
-        localStorage.setItem('auth', 'true');
-        this.$router.push({name: 'Home'})
+      var response = await login(this.userID, this.password);
+      if (response.isSuccess) {
+        localStorage.setItem("auth", "true");
+        this.$router.push({ name: "Home" });
+
+        this.$swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: "Login Success",
+          showConfirmButton: false,
+          timer: 800,
+        });
+      } else {
+        this.$swal.fire({
+          icon: "warning",
+          title: "Login",
+          text: response.message,
+          showConfirmButton: true,
+        });
       }
     },
-    onClick(){
-      this.$router.push('/home')
-    }
   },
 };
 </script>
@@ -76,14 +104,14 @@ export default {
   box-sizing: border-box;
 }
 
-/* button {
+button {
   padding: 0.5em 1em;
   border: none;
   border-radius: 4px;
   background-color: #007bff;
   color: white;
   cursor: pointer;
-} */
+}
 
 button:hover {
   background-color: #0056b3;

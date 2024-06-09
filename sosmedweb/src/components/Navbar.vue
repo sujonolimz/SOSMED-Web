@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
-      <router-link class="navbar-brand" to="/home">Home</router-link>
+      <router-link class="navbar-brand" to="/">Home</router-link>
       <button
         class="navbar-toggler"
         type="button"
@@ -15,7 +15,7 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav">
-          <li class="nav-item dropdown">
+          <li v-if="isAdmin" class="nav-item dropdown">
             <a
               class="nav-link dropdown-toggle"
               href="#"
@@ -49,7 +49,7 @@
               </li>
             </ul>
           </li>
-          <li class="nav-item">
+          <li v-if="isAdmin" class="nav-item">
             <router-link class="nav-link" to="/about">About</router-link>
           </li>
           <li class="nav-item">
@@ -57,7 +57,6 @@
               class="nav-link"
               href="#"
               role="button"
-              data-bs-toggle="dropdown"
               aria-expanded="false"
               @click="logout"
               >Log Out</a
@@ -73,14 +72,37 @@
 <script>
 export default {
   name: "Navbar",
-  data() {},
+  data() {
+    return {
+      isAdmin: false
+    }
+  },
   methods: {
     logout() {
+
+      // remove local storage
       localStorage.removeItem("auth");
+      localStorage.removeItem("userID");
+      localStorage.removeItem("userName");
+      localStorage.removeItem("groupID");
+      localStorage.removeItem("dept");
+      localStorage.removeItem("token");
+
       this.isAuthenticated = false;
+      // redirect to login page
       this.$router.push({ name: "Login" });
     },
+    checkUserStatus(){
+
+      var dept = localStorage.getItem("dept");
+      if(dept == "Admin"){
+        this.isAdmin = true;
+      }
+    }
   },
+  mounted() {
+    this.checkUserStatus();
+  }
 };
 </script>
 

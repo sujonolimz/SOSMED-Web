@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <Navbar v-if="isAuthenticated"></Navbar>
+    <!-- <posting v-if="isAuthenticated"></posting> -->
     <router-view></router-view>
   </div>
 </template>
@@ -36,6 +37,7 @@ export default {
 
 <script setup>
 import Navbar from "./components/Navbar.vue";
+import posting from "./views/Posting.vue";
 </script>
 
 <style scoped>
