@@ -83,3 +83,18 @@ export async function deleteData(paramUserID) {
     }
   }
 }
+
+export async function getTotalMAUs() {
+  try {
+    const response = await axios.get(`user/GetTotalMAUs`);
+    return response.data;
+  } catch (error) {
+    // Network error
+    if (error.code === "ERR_NETWORK") {
+      return error.code;
+    } else {
+      // Other errors (e.g., unexpected issues)
+      alert("User Error getTotalMAUs() :", error.message);
+    }
+  }
+}

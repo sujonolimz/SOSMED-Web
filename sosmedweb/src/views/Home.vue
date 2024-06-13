@@ -1,5 +1,5 @@
 <template>
- <div>
+  <div>
     <button
       type="button"
       class="btn btn-primary"
@@ -16,6 +16,8 @@
       class="modal fade"
       id="exampleModal"
       tabindex="-1"
+      data-bs-backdrop="static"
+      data-bs-keyboard="false"
       aria-labelledby="exampleModalLabel"
       aria-hidden="true"
     >
@@ -28,6 +30,7 @@
               class="btn-close"
               data-bs-dismiss="modal"
               aria-label="Close"
+              :onclick="clearModifyScreen"
             ></button>
           </div>
           <div class="modal-body">
@@ -58,6 +61,7 @@
               type="button"
               class="btn btn-secondary"
               data-bs-dismiss="modal"
+              :onclick="clearModifyScreen"
             >
               Close
             </button>
@@ -70,23 +74,68 @@
     </div>
   </div>
 
-  <div>
+  <div v-if="!isAdmin">
     <h3>Posting List</h3>
-    <ul>
-      <li v-for="item in allData" :key="item.postingID">
-        <div class="card" style="margin: 16px;">
-          <div class="card-header"><h5>{{ item.title }}</h5> </div>
-          <div class="card-body">
-            <p class="card-text">
-              {{ item.description }}
-            </p>
-            <a href="#" class="btn btn-danger" style="margin-right: 4px;">Give like</a>
-            <a href="#" class="btn btn-primary">Comment</a>
+    <div
+      v-for="item in allData"
+      :key="item.postingID"
+      class="card"
+      style="margin: 16px"
+    >
+      <div class="card-header">
+        <h5>{{ item.title }}</h5>
+      </div>
+      <div class="card-body">
+        <p class="card-text">
+          {{ item.description }}
+        </p>
+        <a class="btn btn-danger" style="margin-right: 4px">Like</a>
+        <a class="btn btn-primary">Comment</a>
+      </div>
+      <div class="card-footer text-body-secondary">
+        Posted by : {{ item.createdBy }} |
+        {{ moment(item.createdDate).format("YYYY-MM-DD HH:mm:ss") }}
+      </div>
+    </div>
+  </div>
+
+  <div v-if="isAdmin">
+    <div class="row">
+      <div class="col-md-3">
+        <div class="card">
+          <div class="card-header">
+            <h5>Total Posting</h5>
           </div>
-          <div class="card-footer text-body-secondary">Posted by: {{ item.createdBy }}</div>
+          <div class="card-body">
+            <p class="card-text">{{ totalPosting }}</p>
+          </div>
         </div>
-      </li>
-    </ul>
+      </div>
+      <div class="col-md-3">
+        <div class="card">
+          <div class="card-header">
+            <h5>Monthly Active Users (MAUs)</h5>
+          </div>
+          <div class="card-body">
+            <p class="card-text">{{ totalMAUs }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row" style="padding-top: 1%;">
+      
+      <!-- <div class="col-md-3">
+        <div class="card">
+          <div class="card-header">
+            <h5>Total Posting</h5>
+          </div>
+          <div class="card-body">
+            <p class="card-text">1000</p>
+          </div>
+        </div>
+      </div> -->
+    </div>
   </div>
 </template>
 
@@ -102,6 +151,9 @@ import {
   deleteData,
 } from "@/components/js-file/posting";
 import { useRouter } from "vue-router";
+import moment from "moment";
+import { getTotalMAUs } from "@/components/js-file/user";
+import { resolveComponent } from "vue";
 
 export default {
   name: "Home",
@@ -117,6 +169,8 @@ export default {
       isModifyMode: false,
       isFormIDdisabled: true,
       isEditData: false,
+      totalPosting: 0,
+      totalMAUs: 0,
       allcolumns: [
         { title: "Form ID", data: "formID" },
         { title: "Form Desc", data: "formDesc" },
@@ -217,9 +271,12 @@ export default {
         if (response != "undefined") {
           if (response.isSuccess) {
             this.allData = [];
+
             //Load data to datatable
             this.allData = response.content;
-            console.log(this.allData);
+
+            //get totalPosting
+            this.totalPosting = response.content.length;
           } else {
             this.$swal.fire({
               icon: "warning",
@@ -286,12 +343,11 @@ export default {
             title: "Posting",
             text: "Posting success",
             showConfirmButton: false,
-            timer: 800,
+            timer: 2000,
           });
 
           this.clearModifyScreen();
-          // this.enterMode("displayData");
-          // this.getData();
+          this.getData();
         } else {
           this.$swal.fire({
             icon: "warning",
@@ -419,7 +475,44 @@ export default {
           });
         }
       } catch (error) {
-        console.log(error);
+        this.$swal.fire({
+          icon: "error",
+          title: "Error",
+          text: error,
+          showConfirmButton: true,
+        });
+      }
+    },
+    async getTotalMAUsData() {
+      try {
+        var response = await getTotalMAUs();
+
+        if (response == "ERR_NETWORK") {
+          this.$swal.fire({
+            icon: "warning",
+            title: "Network",
+            text: "Network error when access the server, please try again later or try to relogin !",
+            showConfirmButton: true,
+          });
+          return;
+        }
+
+        if (response != "undefined") {
+          if (response.isSuccess) {
+            this.totalMAUs = 0;
+
+            //Load totalMAUs data
+            this.totalMAUs = response.totalMAUs;
+          } else {
+            this.$swal.fire({
+              icon: "warning",
+              title: "Error",
+              text: response.message,
+              showConfirmButton: true,
+            });
+          }
+        }
+      } catch (error) {
         this.$swal.fire({
           icon: "error",
           title: "Error",
@@ -438,6 +531,7 @@ export default {
   mounted() {
     //get and load data
     this.getData();
+    this.getTotalMAUsData();
     this.checkUserStatus();
   },
 };

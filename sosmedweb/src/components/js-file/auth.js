@@ -30,3 +30,24 @@ export async function login(username, password){
         alert(error)
     }
 }
+
+export async function isHaveFormAccess(userID, formID){
+    try {
+        var param = {
+            "userID": userID,
+            "formID": formID
+        };
+
+        const response = await axios.post(`auth/isHaveFormAccess`,param);
+        return response.data;
+
+    } catch (error) {
+        // Network error
+    if (error.code === "ERR_NETWORK") {
+        return error.code;
+      } else {
+        // Other errors (e.g., unexpected issues)
+        alert("Auth Error isHaveFormAccess() :", error.message);
+      }
+    }
+}

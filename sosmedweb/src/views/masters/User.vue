@@ -642,7 +642,7 @@ export default {
           this.$swal.fire({
             position: "top-right",
             icon: "success",
-            title: "Master Group",
+            title: "Master User",
             text: "Data updated",
             showConfirmButton: false,
             timer: 800,
@@ -689,7 +689,7 @@ export default {
           this.$swal.fire({
             position: "top-right",
             icon: "success",
-            title: "Master Group",
+            title: "Master User",
             text: "Data deleted",
             showConfirmButton: false,
             timer: 800,
@@ -704,7 +704,6 @@ export default {
           });
         }
       } catch (error) {
-        console.log(error);
         this.$swal.fire({
           icon: "error",
           title: "Error",
