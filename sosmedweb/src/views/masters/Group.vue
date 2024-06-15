@@ -1,11 +1,11 @@
 <template>
-  <h3>Master Group</h3>
+  <h3>{{ formDesc }}</h3>
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
       <li class="breadcrumb-item">
         <router-link class="navbar-brand" to="/">Home</router-link>
       </li>
-      <li class="breadcrumb-item active" aria-current="page">Master Group</li>
+      <li class="breadcrumb-item active" aria-current="page">{{ formDesc }}</li>
     </ol>
   </nav>
   <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -99,7 +99,6 @@
               v-model="groupID"
               maxlength="50"
               :disabled="isGroupIDdisabled"
-              @keydown.enter="submitData"
             />
           </div>
           <div class="mb-3">
@@ -115,7 +114,6 @@
               v-model="groupDesc"
               maxlength="200"
               :disabled="!isModifyMode"
-              @keydown.enter="submitData"
             />
           </div>
 
@@ -162,10 +160,11 @@ import {
   updateData,
   deleteData,
 } from "@/components/js-file/group";
+import { getFormDescData } from "@/components/js-file/form";
 import { useRouter } from "vue-router";
 
 export default {
-  name: 'Group',
+  name: "Group",
   components: {
     DataTable,
   },
@@ -173,11 +172,13 @@ export default {
     return {
       groupID: "",
       groupDesc: "",
+      formDesc: "Group",
       activeTab: "displayData",
       isModifyMode: false,
       isGroupIDdisabled: true,
       isEditData: false,
       allcolumns: [
+        { title: "No", data: "no" },
         { title: "Group ID", data: "groupID" },
         { title: "Group Desc", data: "groupDesc" },
         { title: "Created By", data: "createdBy" },
@@ -499,45 +500,86 @@ export default {
         }
       }
     },
+    setEventForMainTable() {
+      // set event for edit or delete onclick in datatable
+      const tableElement = this.$refs.table.$el;
+
+      tableElement.addEventListener("click", (event) => {
+        const editButton = event.target.closest(".btn-primary");
+        const deleteButton = event.target.closest(".btn-danger");
+
+        if (editButton) {
+          const rowId = editButton.getAttribute("data-id");
+          this.editData(rowId);
+        }
+
+        if (deleteButton) {
+          const rowId = deleteButton.getAttribute("data-id");
+
+          this.$swal
+            .fire({
+              title: "Master Group",
+              text:
+                "Are you sure to delete data with Group ID '" + rowId + "' ?",
+              showDenyButton: true,
+              showCancelButton: false,
+              confirmButtonText: "Yes",
+              denyButtonText: `No`,
+            })
+            .then((result) => {
+              /* Read more about isConfirmed, isDenied below */
+              if (result.isConfirmed) {
+                this.deleteData(rowId);
+              } else if (result.isDenied) {
+                // do nothing
+              }
+            });
+        }
+      });
+    },
+    async getFormDescData() {
+      try {
+        var response = await getFormDescData("TGroup");
+
+        if (response == "ERR_NETWORK") {
+          this.$swal.fire({
+            icon: "warning",
+            title: "Network",
+            text: "Network error when access the server, please try again later or try to relogin !",
+            showConfirmButton: true,
+          });
+          return;
+        }
+
+        if (response != "undefined") {
+          if (response.isSuccess) {
+            //Load data to datatable
+            this.formDesc = response.formDesc;
+          } else {
+            this.$swal.fire({
+              icon: "warning",
+              title: "Error",
+              text: response.message,
+              showConfirmButton: true,
+            });
+          }
+        }
+      } catch (error) {
+        this.$swal.fire({
+          icon: "error",
+          title: "Error",
+          text: error,
+          showConfirmButton: true,
+        });
+      }
+    },
   },
   mounted() {
     //get and load data
     this.getData();
+    this.getFormDescData();
 
-    // set event for edit or delete onclick in datatable
-    const tableElement = this.$refs.table.$el;
-
-    tableElement.addEventListener("click", (event) => {
-      const editButton = event.target.closest(".btn-primary");
-      const deleteButton = event.target.closest(".btn-danger");
-
-      if (editButton) {
-        const rowId = editButton.getAttribute("data-id");
-        this.editData(rowId);
-      }
-
-      if (deleteButton) {
-        const rowId = deleteButton.getAttribute("data-id");
-
-        this.$swal
-          .fire({
-            title: "Master Group",
-            text: "Are you sure to delete data with Group ID '" + rowId + "' ?",
-            showDenyButton: true,
-            showCancelButton: false,
-            confirmButtonText: "Yes",
-            denyButtonText: `No`,
-          })
-          .then((result) => {
-            /* Read more about isConfirmed, isDenied below */
-            if (result.isConfirmed) {
-              this.deleteData(rowId);
-            } else if (result.isDenied) {
-              // do nothing
-            }
-          });
-      }
-    });
+    this.setEventForMainTable();
   },
 };
 </script>
@@ -546,5 +588,3 @@ export default {
 @import "bootstrap";
 @import "datatables.net-bs5";
 </style>
-
-  

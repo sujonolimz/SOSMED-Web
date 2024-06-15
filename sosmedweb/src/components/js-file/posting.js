@@ -2,9 +2,9 @@ import axios from "@/axios";
 
 export default {};
 
-export async function getData() {
+export async function getData(param) {
   try {
-    const response = await axios.get(`Posting/GetData`);
+    const response = await axios.get(`Posting/GetData?userID=${param}`);
     return response.data;
 
   } catch (error) {
@@ -42,6 +42,7 @@ export async function insertData(paramList) {
 export async function updateData(paramList) {
   try {
     var param = {
+      postingID: paramList[0].postingID,
       title: paramList[0].title,
       description: paramList[0].description,
       updatedBy: localStorage.getItem("userID"),

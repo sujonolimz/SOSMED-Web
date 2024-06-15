@@ -1,11 +1,13 @@
 <template>
-  <h3>Master Posting Limit</h3>
+  <h3>{{ formDesc }}</h3>
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
       <li class="breadcrumb-item">
         <router-link class="navbar-brand" to="/">Home</router-link>
       </li>
-      <li class="breadcrumb-item active" aria-current="page">Master Posting Limit</li>
+      <li class="breadcrumb-item active" aria-current="page">
+        {{ formDesc }}
+      </li>
     </ol>
   </nav>
   <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -89,7 +91,9 @@
       <div>
         <div class="col-6">
           <div class="mb-3">
-            <label for="postLimitID" class="form-label tabs-modify">Post Limit ID</label>
+            <label for="postLimitID" class="form-label tabs-modify"
+              >Post Limit ID</label
+            >
             <input
               type="text"
               class="form-control"
@@ -99,7 +103,6 @@
               v-model="postLimitID"
               maxlength="50"
               :disabled="isPostLimitIDdisabled"
-              @keydown.enter="submitData"
             />
           </div>
           <div class="mb-3">
@@ -117,7 +120,6 @@
               v-model="postLimitValue"
               maxlength="200"
               :disabled="!isModifyMode"
-              @keydown.enter="submitData"
             />
           </div>
 
@@ -164,10 +166,11 @@ import {
   updateData,
   deleteData,
 } from "@/components/js-file/postLimit";
+import { getFormDescData } from "@/components/js-file/form";
 import { useRouter } from "vue-router";
 
 export default {
-  name: 'Post Limit',
+  name: "Post Limit",
   components: {
     DataTable,
   },
@@ -175,11 +178,13 @@ export default {
     return {
       postLimitID: "",
       postLimitValue: "",
+      formDesc: "Post Limit",
       activeTab: "displayData",
       isModifyMode: false,
       isPostLimitIDdisabled: true,
       isEditData: false,
       allcolumns: [
+        { title: "No", data: "no" },
         { title: "Post Limit ID", data: "postLimitID" },
         { title: "Post Limit Value", data: "postLimitValue" },
         { title: "Created By", data: "createdBy" },
@@ -325,7 +330,10 @@ export default {
           await this.updateData(this.postLimitID, this.postLimitValue);
         } else {
           //Insert new data
-          var response = await insertData(this.postLimitID, this.postLimitValue);
+          var response = await insertData(
+            this.postLimitID,
+            this.postLimitValue
+          );
 
           if (response == "ERR_NETWORK") {
             this.$swal.fire({
@@ -501,45 +509,87 @@ export default {
         }
       }
     },
+    setEventForMainTable() {
+      // set event for edit or delete onclick in datatable
+      const tableElement = this.$refs.table.$el;
+
+      tableElement.addEventListener("click", (event) => {
+        const editButton = event.target.closest(".btn-primary");
+        const deleteButton = event.target.closest(".btn-danger");
+
+        if (editButton) {
+          const rowId = editButton.getAttribute("data-id");
+          this.editData(rowId);
+        }
+
+        if (deleteButton) {
+          const rowId = deleteButton.getAttribute("data-id");
+
+          this.$swal
+            .fire({
+              title: "Master Post Limit",
+              text:
+                "Are you sure to delete data with Post Limit ID '" +
+                rowId +
+                "' ?",
+              showDenyButton: true,
+              showCancelButton: false,
+              confirmButtonText: "Yes",
+              denyButtonText: `No`,
+            })
+            .then((result) => {
+              /* Read more about isConfirmed, isDenied below */
+              if (result.isConfirmed) {
+                this.deleteData(rowId);
+              } else if (result.isDenied) {
+                // do nothing
+              }
+            });
+        }
+      });
+    },
+    async getFormDescData() {
+      try {
+        var response = await getFormDescData("TPostingLimit");
+
+        if (response == "ERR_NETWORK") {
+          this.$swal.fire({
+            icon: "warning",
+            title: "Network",
+            text: "Network error when access the server, please try again later or try to relogin !",
+            showConfirmButton: true,
+          });
+          return;
+        }
+
+        if (response != "undefined") {
+          if (response.isSuccess) {
+            //Load data to datatable
+            this.formDesc = response.formDesc;
+          } else {
+            this.$swal.fire({
+              icon: "warning",
+              title: "Error",
+              text: response.message,
+              showConfirmButton: true,
+            });
+          }
+        }
+      } catch (error) {
+        this.$swal.fire({
+          icon: "error",
+          title: "Error",
+          text: error,
+          showConfirmButton: true,
+        });
+      }
+    },
   },
   mounted() {
     //get and load data
     this.getData();
-
-    // set event for edit or delete onclick in datatable
-    const tableElement = this.$refs.table.$el;
-
-    tableElement.addEventListener("click", (event) => {
-      const editButton = event.target.closest(".btn-primary");
-      const deleteButton = event.target.closest(".btn-danger");
-
-      if (editButton) {
-        const rowId = editButton.getAttribute("data-id");
-        this.editData(rowId);
-      }
-
-      if (deleteButton) {
-        const rowId = deleteButton.getAttribute("data-id");
-
-        this.$swal
-          .fire({
-            title: "Master Post Limit",
-            text: "Are you sure to delete data with Post Limit ID '" + rowId + "' ?",
-            showDenyButton: true,
-            showCancelButton: false,
-            confirmButtonText: "Yes",
-            denyButtonText: `No`,
-          })
-          .then((result) => {
-            /* Read more about isConfirmed, isDenied below */
-            if (result.isConfirmed) {
-              this.deleteData(rowId);
-            } else if (result.isDenied) {
-              // do nothing
-            }
-          });
-      }
-    });
+    this.setEventForMainTable();
+    this.getFormDescData();
   },
 };
 </script>

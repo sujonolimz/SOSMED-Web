@@ -1,11 +1,11 @@
 <template>
-  <h3>Master Form</h3>
+  <h3>{{ formTitleDesc }}</h3>
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
       <li class="breadcrumb-item">
         <router-link class="navbar-brand" to="/">Home</router-link>
       </li>
-      <li class="breadcrumb-item active" aria-current="page">Master Form</li>
+      <li class="breadcrumb-item active" aria-current="page">{{ formTitleDesc }}</li>
     </ol>
   </nav>
   <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -99,7 +99,6 @@
               v-model="formID"
               maxlength="50"
               :disabled="isFormIDdisabled"
-              @keydown.enter="submitData"
             />
           </div>
           <div class="mb-3">
@@ -115,7 +114,6 @@
               v-model="formDesc"
               maxlength="200"
               :disabled="!isModifyMode"
-              @keydown.enter="submitData"
             />
           </div>
 
@@ -161,6 +159,7 @@ import {
   insertData,
   updateData,
   deleteData,
+  getFormDescData,
 } from "@/components/js-file/form";
 import { useRouter } from "vue-router";
 
@@ -173,11 +172,13 @@ export default {
     return {
       formID: "",
       formDesc: "",
+      formTitleDesc: "Form",
       activeTab: "displayData",
       isModifyMode: false,
       isFormIDdisabled: true,
       isEditData: false,
       allcolumns: [
+        { title: "No", data: "no" },
         { title: "Form ID", data: "formID" },
         { title: "Form Desc", data: "formDesc" },
         { title: "Created By", data: "createdBy" },
@@ -499,45 +500,86 @@ export default {
         }
       }
     },
+    setEventForMainTable() {
+      const tableElement = this.$refs.table.$el;
+
+      tableElement.addEventListener("click", (event) => {
+        const editButton = event.target.closest(".btn-primary");
+        const deleteButton = event.target.closest(".btn-danger");
+
+        if (editButton) {
+          const rowId = editButton.getAttribute("data-id");
+          this.editData(rowId);
+        }
+
+        if (deleteButton) {
+          const rowId = deleteButton.getAttribute("data-id");
+
+          this.$swal
+            .fire({
+              title: "Master Form",
+              text:
+                "Are you sure to delete data with Form ID '" + rowId + "' ?",
+              showDenyButton: true,
+              showCancelButton: false,
+              confirmButtonText: "Yes",
+              denyButtonText: `No`,
+            })
+            .then((result) => {
+              /* Read more about isConfirmed, isDenied below */
+              if (result.isConfirmed) {
+                this.deleteData(rowId);
+              } else if (result.isDenied) {
+                // do nothing
+              }
+            });
+        }
+      });
+    },
+    async getFormDescData() {
+      try {
+        var response = await getFormDescData("TForm");
+
+        if (response == "ERR_NETWORK") {
+          this.$swal.fire({
+            icon: "warning",
+            title: "Network",
+            text: "Network error when access the server, please try again later or try to relogin !",
+            showConfirmButton: true,
+          });
+          return;
+        }
+
+        if (response != "undefined") {
+          if (response.isSuccess) {
+            //Load data to datatable
+            this.formTitleDesc = response.formDesc;
+          } else {
+            this.$swal.fire({
+              icon: "warning",
+              title: "Error",
+              text: response.message,
+              showConfirmButton: true,
+            });
+          }
+        }
+      } catch (error) {
+        this.$swal.fire({
+          icon: "error",
+          title: "Error",
+          text: error,
+          showConfirmButton: true,
+        });
+      }
+    },
   },
   mounted() {
     //get and load data
     this.getData();
+    this.getFormDescData();
 
     // set event for edit or delete onclick in datatable
-    const tableElement = this.$refs.table.$el;
-
-    tableElement.addEventListener("click", (event) => {
-      const editButton = event.target.closest(".btn-primary");
-      const deleteButton = event.target.closest(".btn-danger");
-
-      if (editButton) {
-        const rowId = editButton.getAttribute("data-id");
-        this.editData(rowId);
-      }
-
-      if (deleteButton) {
-        const rowId = deleteButton.getAttribute("data-id");
-
-        this.$swal
-          .fire({
-            title: "Master Form",
-            text: "Are you sure to delete data with Form ID '" + rowId + "' ?",
-            showDenyButton: true,
-            showCancelButton: false,
-            confirmButtonText: "Yes",
-            denyButtonText: `No`,
-          })
-          .then((result) => {
-            /* Read more about isConfirmed, isDenied below */
-            if (result.isConfirmed) {
-              this.deleteData(rowId);
-            } else if (result.isDenied) {
-              // do nothing
-            }
-          });
-      }
-    });
+    this.setEventForMainTable();
   },
 };
 </script>

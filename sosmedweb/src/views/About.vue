@@ -7,7 +7,7 @@
         <h5>Version 1.0.0</h5>
       </div>
       <div class="card-body">
-        <p class="card-text">First time application deploy</p>
+        <p class="card-text">First application version</p>
       </div>
     </div>
   </div>

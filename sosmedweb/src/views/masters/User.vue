@@ -1,11 +1,11 @@
 <template>
-  <h3>Master User</h3>
+  <h3>{{ formDesc }}</h3>
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
       <li class="breadcrumb-item">
         <router-link class="navbar-brand" to="/">Home</router-link>
       </li>
-      <li class="breadcrumb-item active" aria-current="page">Master User</li>
+      <li class="breadcrumb-item active" aria-current="page">{{ formDesc }}</li>
     </ol>
   </nav>
   <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -86,149 +86,143 @@
       aria-labelledby="modifyData-tab"
       tabindex="0"
     >
-      <form>
-        <div class="row">
-          <div class="col-6">
-            <div class="mb-3">
-              <label for="userID" class="form-label tabs-modify">User ID</label>
-              <input
-                type="text"
-                class="form-control"
-                id="userID"
-                placeholder="Input User ID"
-                autocomplete="off"
-                v-model="userID"
-                maxlength="50"
-                :disabled="isUserIDdisabled"
-                @keydown.enter="submitData"
-              />
-            </div>
-            <div class="mb-3">
-              <label for="userName" class="form-label tabs-modify"
-                >User Name</label
-              >
-              <input
-                type="text"
-                class="form-control"
-                id="userName"
-                placeholder="Input User Name"
-                autocomplete="off"
-                v-model="userName"
-                maxlength="200"
-                :disabled="!isModifyMode"
-                @keydown.enter="submitData"
-              />
-            </div>
-
-            <div class="mb-3">
-              <label for="password" class="form-label tabs-modify"
-                >Password</label
-              >
-              <input
-                type="password"
-                class="form-control"
-                id="password"
-                placeholder="Input Password"
-                autocomplete="off"
-                v-model="password"
-                maxlength="200"
-                :disabled="!isModifyMode"
-                @keydown.enter="submitData"
-              />
-              <br />
-              <input
-                type="password"
-                class="form-control"
-                id="repassword"
-                placeholder="Input reconfim Password"
-                autocomplete="off"
-                v-model="repassword"
-                maxlength="200"
-                :disabled="!isModifyMode"
-                @keydown.enter="submitData"
-              />
-            </div>
-
-            <button
-              @click="onBtnBackClick"
-              class="btn btn-outline-warning"
-              style="margin-right: 4px"
-              :disabled="!isModifyMode"
-            >
-              Back
-            </button>
-            <button
-              @click="submitData"
-              :disabled="!isModifyMode"
-              class="btn btn-outline-primary"
-            >
-              Submit
-            </button>
+      <div class="row">
+        <div class="col-6">
+          <div class="mb-3">
+            <label for="userID" class="form-label tabs-modify">User ID</label>
+            <input
+              type="text"
+              class="form-control"
+              id="userID"
+              placeholder="Input User ID"
+              autocomplete="off"
+              v-model="userID"
+              maxlength="50"
+              :disabled="isUserIDdisabled"
+            />
           </div>
-          <div class="col-6">
-            <div class="mb-3">
-              <label for="deptID" class="form-label tabs-modify">Dept</label>
-              <select
-                id="deptID"
-                v-model="deptID"
-                class="form-select"
-                :disabled="!isModifyMode"
-              >
-                <option v-if="!deptID" value="" disabled>Select Dept</option>
-                <option
-                  v-for="option in deptIDList"
-                  :key="option.deptDesc"
-                  :value="option.deptID"
-                >
-                  {{ option.deptDesc }}
-                </option>
-              </select>
-            </div>
+          <div class="mb-3">
+            <label for="userName" class="form-label tabs-modify"
+              >User Name</label
+            >
+            <input
+              type="text"
+              class="form-control"
+              id="userName"
+              placeholder="Input User Name"
+              autocomplete="off"
+              v-model="userName"
+              maxlength="200"
+              :disabled="!isModifyMode"
+            />
+          </div>
 
-            <div class="mb-3">
-              <label for="groupID" class="form-label tabs-modify">Group</label>
-              <select
-                id="groupID"
-                v-model="groupID"
-                class="form-select"
-                :disabled="!isModifyMode"
-              >
-                <option v-if="!groupID" value="" disabled>Select Group</option>
-                <option
-                  v-for="option in groupIDList"
-                  :key="option.groupDesc"
-                  :value="option.groupID"
-                >
-                  {{ option.groupDesc }}
-                </option>
-              </select>
-            </div>
+          <div class="mb-3">
+            <label for="password" class="form-label tabs-modify"
+              >Password</label
+            >
+            <input
+              type="password"
+              class="form-control"
+              id="password"
+              placeholder="Input Password"
+              autocomplete="off"
+              v-model="password"
+              maxlength="200"
+              :disabled="!isModifyMode"
+            />
+            <br />
+            <input
+              type="password"
+              class="form-control"
+              id="repassword"
+              placeholder="Input reconfim Password"
+              autocomplete="off"
+              v-model="repassword"
+              maxlength="200"
+              :disabled="!isModifyMode"
+            />
+          </div>
 
-            <div class="mb-3">
-              <label for="postLimitID" class="form-label tabs-modify"
-                >Post Limit</label
+          <button
+            @click="onBtnBackClick"
+            class="btn btn-outline-warning"
+            style="margin-right: 4px"
+            :disabled="!isModifyMode"
+          >
+            Back
+          </button>
+          <button
+            @click="submitData"
+            :disabled="!isModifyMode"
+            class="btn btn-outline-primary"
+          >
+            Submit
+          </button>
+        </div>
+        <div class="col-6">
+          <div class="mb-3">
+            <label for="deptID" class="form-label tabs-modify">Dept</label>
+            <select
+              id="deptID"
+              v-model="deptID"
+              class="form-select"
+              :disabled="!isModifyMode"
+            >
+              <option v-if="!deptID" value="" disabled>Select Dept</option>
+              <option
+                v-for="option in deptIDList"
+                :key="option.deptDesc"
+                :value="option.deptID"
               >
-              <select
-                id="postLimitID"
-                v-model="postLimitID"
-                class="form-select"
-                :disabled="!isModifyMode"
+                {{ option.deptDesc }}
+              </option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="groupID" class="form-label tabs-modify">Group</label>
+            <select
+              id="groupID"
+              v-model="groupID"
+              class="form-select"
+              :disabled="!isModifyMode"
+            >
+              <option v-if="!groupID" value="" disabled>Select Group</option>
+              <option
+                v-for="option in groupIDList"
+                :key="option.groupDesc"
+                :value="option.groupID"
               >
-                <option v-if="!postLimitID" value="" disabled>
-                  Select Post Limit
-                </option>
-                <option
-                  v-for="option in postLimitIDList"
-                  :key="option.postLimitID"
-                  :value="option.postLimitID"
-                >
-                  {{ option.postLimitID }}
-                </option>
-              </select>
-            </div>
+                {{ option.groupDesc }}
+              </option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="postLimitID" class="form-label tabs-modify"
+              >Post Limit</label
+            >
+            <select
+              id="postLimitID"
+              v-model="postLimitID"
+              class="form-select"
+              :disabled="!isModifyMode"
+            >
+              <option v-if="!postLimitID" value="" disabled>
+                Select Post Limit
+              </option>
+              <option
+                v-for="option in postLimitIDList"
+                :key="option.postLimitID"
+                :value="option.postLimitID"
+              >
+                {{ option.postLimitID }}
+              </option>
+            </select>
           </div>
         </div>
-      </form>
+      </div>
     </div>
   </div>
 </template>
@@ -257,6 +251,7 @@ import {
 } from "@/components/js-file/user";
 import { getData as getPostLimitData } from "@/components/js-file/postLimit";
 import { getData as getGroupData } from "@/components/js-file/group";
+import { getFormDescData } from "@/components/js-file/form";
 import { useRouter } from "vue-router";
 
 export default {
@@ -279,11 +274,13 @@ export default {
       deptID: "",
       postLimitID: "",
       postLimitIDList: [],
+      formDesc: "User",
       activeTab: "displayData",
       isModifyMode: false,
       isUserIDdisabled: true,
       isEditData: false,
       allcolumns: [
+        { title: "No", data: "no" },
         { title: "User ID", data: "userID" },
         { title: "User Name", data: "userName" },
         { title: "Dept", data: "dept" },
@@ -769,6 +766,43 @@ export default {
         }
       });
     },
+    async getFormDescData() {
+      try {
+        var response = await getFormDescData('TUser');
+
+        if (response == "ERR_NETWORK") {
+          this.$swal.fire({
+            icon: "warning",
+            title: "Network",
+            text: "Network error when access the server, please try again later or try to relogin !",
+            showConfirmButton: true,
+          });
+          return;
+        }
+
+        if (response != "undefined") {
+          if (response.isSuccess) {
+
+            //Load data to datatable
+            this.formDesc = response.formDesc;
+          } else {
+            this.$swal.fire({
+              icon: "warning",
+              title: "Error",
+              text: response.message,
+              showConfirmButton: true,
+            });
+          }
+        }
+      } catch (error) {
+        this.$swal.fire({
+          icon: "error",
+          title: "Error",
+          text: error,
+          showConfirmButton: true,
+        });
+      }
+    },
   },
   mounted() {
     //get and load data
@@ -776,6 +810,7 @@ export default {
     this.getPostLimitList();
     this.getGroupList();
     this.setEventForMainTable();
+    this.getFormDescData();
   },
 };
 </script>

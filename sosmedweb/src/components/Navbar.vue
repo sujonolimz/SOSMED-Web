@@ -27,27 +27,56 @@
             </a>
             <ul class="dropdown-menu">
               <li>
-                <router-link v-if="isHaveAccForm" class="dropdown-item" to="/form">Form</router-link>
+                <router-link
+                  v-if="isHaveAccForm"
+                  class="dropdown-item"
+                  to="/form"
+                  >Form</router-link
+                >
               </li>
               <li>
-                <router-link v-if="isHaveAccGroup" class="dropdown-item" to="/group"
+                <router-link
+                  v-if="isHaveAccGroup"
+                  class="dropdown-item"
+                  to="/group"
                   >Group</router-link
                 >
               </li>
               <li>
-                <router-link v-if="isHaveAccGroupAccess" class="dropdown-item" to="/groupaccess"
+                <router-link
+                  v-if="isHaveAccGroupAccess"
+                  class="dropdown-item"
+                  to="/groupaccess"
                   >Group Access</router-link
                 >
               </li>
               <li>
-                <router-link v-if="isHaveAccPostLimit" class="dropdown-item" to="/postinglimit"
+                <router-link
+                  v-if="isHaveAccPostLimit"
+                  class="dropdown-item"
+                  to="/postinglimit"
                   >Posting Limit</router-link
                 >
               </li>
               <li>
-                <router-link v-if="isHaveAccUser" class="dropdown-item" to="/user">User</router-link>
+                <router-link
+                  v-if="isHaveAccUser"
+                  class="dropdown-item"
+                  to="/user"
+                  >User</router-link
+                >
               </li>
             </ul>
+          </li>
+          <li class="nav-item">
+            <router-link v-if="isHaveAccPosting" class="nav-link" to="/posting"
+              >Posting</router-link
+            >
+          </li>
+          <li v-if="isAdmin" class="nav-item">
+            <router-link v-if="isHaveAccLoginHistory" class="nav-link" to="/loginhistory"
+              >Login History</router-link
+            >
           </li>
           <li v-if="isAdmin" class="nav-item">
             <router-link class="nav-link" to="/about">About</router-link>
@@ -55,7 +84,9 @@
           <li class="nav-item"></li>
           <!-- Add more links here -->
         </ul>
-        <span class="navbar-text" style="padding-right: 2%;"> {{ userid }} | {{ username }}</span>
+        <span class="navbar-text" style="padding-right: 2%">
+          {{ userid }} | {{ username }}</span
+        >
         <span class="navbar-text">
           <a
             class="nav-link"
@@ -79,13 +110,15 @@ export default {
   data() {
     return {
       isAdmin: false,
-      userid: '',
-      username: '',
+      userid: "",
+      username: "",
       isHaveAccForm: false,
       isHaveAccGroup: false,
       isHaveAccGroupAccess: false,
       isHaveAccPostLimit: false,
       isHaveAccUser: false,
+      isHaveAccPosting: false,
+      isHaveAccLoginHistory: false,
     };
   },
   methods: {
@@ -108,11 +141,11 @@ export default {
         this.isAdmin = true;
       }
     },
-    loadUserData(){
+    loadUserData() {
       this.userid = localStorage.getItem("userID");
       this.username = localStorage.getItem("userName");
     },
-    async checkIsHaveAccess(formID){
+    async checkIsHaveAccess(formID) {
       try {
         var response = await isHaveFormAccess(this.userid, formID);
 
@@ -128,40 +161,38 @@ export default {
 
         if (response != "undefined") {
           if (response.isSuccess) {
-            if(formID == "TForm"){
+            if (formID == "TForm") {
               this.isHaveAccForm = true;
-            }
-            else if(formID == "TGroup"){
+            } else if (formID == "TGroup") {
               this.isHaveAccGroup = true;
-            }
-            else if(formID == "TGroupAccess"){
+            } else if (formID == "TGroupAccess") {
               this.isHaveAccGroupAccess = true;
-            }
-            else if(formID == "TPostingLimit"){
+            } else if (formID == "TPostingLimit") {
               this.isHaveAccPostLimit = true;
-            }
-            else if(formID == "TUser"){
+            } else if (formID == "TUser") {
               this.isHaveAccUser = true;
+            } else if (formID == "TPosting") {
+              this.isHaveAccPosting = true;
+            } else if (formID == "TLoginHistory") {
+              this.isHaveAccLoginHistory = true;
             }
-              
           } else {
-            
-            if(formID == "TForm"){
+            if (formID == "TForm") {
               this.isHaveAccForm = false;
-            }
-            else if(formID == "TGroup"){
+            } else if (formID == "TGroup") {
               this.isHaveAccGroup = false;
-            }
-            else if(formID == "TGroupAccess"){
+            } else if (formID == "TGroupAccess") {
               this.isHaveAccGroupAccess = false;
-            }
-            else if(formID == "TPostingLimit"){
+            } else if (formID == "TPostingLimit") {
               this.isHaveAccPostLimit = false;
-            }
-            else if(formID == "TUser"){
+            } else if (formID == "TUser") {
               this.isHaveAccUser = false;
+            } else if (formID == "TPosting") {
+              this.isHaveAccPosting = false;
+            } else if (formID == "TLoginHistory") {
+              this.isHaveAccLoginHistory = false;
             }
-            
+
             // this.$swal.fire({
             //   icon: "warning",
             //   title: "Not Authorized",
@@ -179,18 +210,20 @@ export default {
           showConfirmButton: true,
         });
       }
-    }
+    },
   },
   mounted() {
     this.checkUserStatus();
     this.loadUserData();
 
     //Check form access
-    this.checkIsHaveAccess('TForm');
-    this.checkIsHaveAccess('TGroup');
-    this.checkIsHaveAccess('TGroupAccess');
-    this.checkIsHaveAccess('TPostingLimit');
-    this.checkIsHaveAccess('TUser');
+    this.checkIsHaveAccess("TForm");
+    this.checkIsHaveAccess("TGroup");
+    this.checkIsHaveAccess("TGroupAccess");
+    this.checkIsHaveAccess("TPostingLimit");
+    this.checkIsHaveAccess("TUser");
+    this.checkIsHaveAccess("TPosting");
+    this.checkIsHaveAccess("TLoginHistory");
   },
 };
 </script>

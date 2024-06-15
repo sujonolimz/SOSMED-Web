@@ -6,6 +6,7 @@
       data-bs-toggle="modal"
       data-bs-target="#exampleModal"
       data-bs-whatever="@mdo"
+      style="margin-left: 1%"
       v-if="!isAdmin"
     >
       <font-awesome-icon icon="fa-solid fa-plus" />
@@ -75,7 +76,7 @@
   </div>
 
   <div v-if="!isAdmin">
-    <h3>Posting List</h3>
+    <!-- <h3>Posting List</h3> -->
     <div
       v-for="item in allData"
       :key="item.postingID"
@@ -89,10 +90,13 @@
         <p class="card-text">
           {{ item.description }}
         </p>
-        <a class="btn btn-danger" style="margin-right: 4px">Like</a>
-        <a class="btn btn-primary">Comment</a>
+        <!-- <a class="btn btn-danger" style="margin-right: 4px">Like</a>
+        <a class="btn btn-primary">Comment</a> -->
       </div>
       <div class="card-footer text-body-secondary">
+        <div v-if="item.updatedBy">
+          {{ editedData }}
+        </div>
         Posted by : {{ item.createdBy }} |
         {{ moment(item.createdDate).format("YYYY-MM-DD HH:mm:ss") }}
       </div>
@@ -107,7 +111,11 @@
             <h5>Total Posting</h5>
           </div>
           <div class="card-body">
-            <p class="card-text">{{ totalPosting }}</p>
+            <p class="card-text">
+              <router-link class="nav-link" to="/posting">{{
+                totalPosting
+              }}</router-link>
+            </p>
           </div>
         </div>
       </div>
@@ -116,25 +124,22 @@
           <div class="card-header">
             <h5>Monthly Active Users (MAUs)</h5>
           </div>
-          <div class="card-body">
-            <p class="card-text">{{ totalMAUs }}</p>
+
+          <div v-if="isHaveAccLoginHistory" class="card-body">
+            <p class="card-text">
+              <router-link class="nav-link" to="/loginhistory">{{
+                totalMAUs
+              }}</router-link>
+            </p>
+          </div>
+
+          <div v-if="!isHaveAccLoginHistory" class="card-body">
+            <p class="card-text">
+              {{ totalMAUs }}
+            </p>
           </div>
         </div>
       </div>
-    </div>
-
-    <div class="row" style="padding-top: 1%;">
-      
-      <!-- <div class="col-md-3">
-        <div class="card">
-          <div class="card-header">
-            <h5>Total Posting</h5>
-          </div>
-          <div class="card-body">
-            <p class="card-text">1000</p>
-          </div>
-        </div>
-      </div> -->
     </div>
   </div>
 </template>
@@ -144,16 +149,12 @@
 </script>
 
 <script>
-import {
-  getData,
-  insertData,
-  updateData,
-  deleteData,
-} from "@/components/js-file/posting";
+import { getData, insertData } from "@/components/js-file/posting";
+import { getTotalMAUs } from "@/components/js-file/user";
+import { isHaveFormAccess } from "@/components/js-file/auth";
+
 import { useRouter } from "vue-router";
 import moment from "moment";
-import { getTotalMAUs } from "@/components/js-file/user";
-import { resolveComponent } from "vue";
 
 export default {
   name: "Home",
@@ -162,68 +163,15 @@ export default {
   },
   data() {
     return {
+      userid: "",
       isAdmin: false,
       postTitle: "",
       postDesc: "",
-      activeTab: "displayData",
-      isModifyMode: false,
-      isFormIDdisabled: true,
-      isEditData: false,
       totalPosting: 0,
       totalMAUs: 0,
-      allcolumns: [
-        { title: "Form ID", data: "formID" },
-        { title: "Form Desc", data: "formDesc" },
-        { title: "Created By", data: "createdBy" },
-        {
-          title: "Created Date",
-          data: "createdDate",
-          render: (data) => {
-            if (data == null) {
-              return "";
-            }
-            const formattedDatetime = moment(data).format(
-              "YYYY-MM-DD HH:mm:ss"
-            );
-            return formattedDatetime;
-          },
-        },
-        { title: "Updated By", data: "updatedBy" },
-        {
-          title: "Updated Date",
-          data: "updatedDate",
-          render: (data) => {
-            if (data == null) {
-              return "";
-            }
-            const formattedDatetime = moment(data).format(
-              "YYYY-MM-DD HH:mm:ss"
-            );
-            return formattedDatetime;
-          },
-        },
-        {
-          title: "Actions",
-          data: null,
-          defaultContent: "", // to avoid errors if data is null
-          orderable: false,
-          searchable: false,
-          width: "150px",
-          render: (data, type, row) => {
-            const editID = "edit_" + data.formID.replace(/\s+/g, "");
-            const deleteID = "delete_" + data.formID.replace(/\s+/g, "");
-
-            return `
-              <button class="btn btn-sm btn-primary" id="${editID}" data-id="${data.formID}" >Edit <i class="fas fa-edit"></i></button>
-              <button class="btn btn-sm btn-danger" id="${deleteID}" data-id="${data.formID}" >Delete <font-awesome-icon icon="fa-solid fa-trash" size="2x" /></button>
-            `;
-          },
-        },
-      ],
+      isHaveAccLoginHistory: false,
+      editedData: "[Edited]",
       allData: [],
-      options: {
-        scrollX: true,
-      },
     };
   },
   setup() {
@@ -232,31 +180,13 @@ export default {
     return { router };
   },
   methods: {
-    enterMode(mode) {
-      if (mode == "modifyData") {
-        this.activeTab = "modifyData";
-        this.isModifyMode = true;
-        this.enableDisabledButton(true);
-        this.isFormIDdisabled = false;
-      } else {
-        this.activeTab = "displayData";
-        this.isModifyMode = false;
-        this.enableDisabledButton(false);
-        this.isFormIDdisabled = true;
-      }
-    },
     clearModifyScreen() {
       this.postTitle = "";
       this.postDesc = "";
     },
-    onBtnBackClick() {
-      this.clearModifyScreen();
-      this.enterMode("displayData");
-      this.isEditData = false;
-    },
     async getData() {
       try {
-        var response = await getData();
+        var response = await getData("Admin");
 
         if (response == "ERR_NETWORK") {
           this.$swal.fire({
@@ -356,124 +286,6 @@ export default {
             showConfirmButton: true,
           });
         }
-
-        // if (this.isEditData) {
-        //   //Update data
-        //   await this.updateData(this.formID, this.formDesc);
-        // } else {
-        // }
-      } catch (error) {
-        this.$swal.fire({
-          icon: "error",
-          title: "Error",
-          text: error,
-          showConfirmButton: true,
-        });
-      }
-    },
-    async editData(formID) {
-      try {
-        //set isEditData as true
-        this.isEditData = true;
-
-        //retrieve data to modify screen
-        const filteredData = this.allData.filter(
-          (data) => data.formID === formID
-        );
-
-        this.formID = filteredData[0].formID;
-        this.formDesc = filteredData[0].formDesc;
-
-        this.enterMode("modifyData");
-        this.isFormIDdisabled = true;
-      } catch (error) {
-        this.$swal.fire({
-          icon: "error",
-          title: "Error",
-          text: error,
-          showConfirmButton: true,
-        });
-      }
-    },
-    async updateData(formID, formDesc) {
-      try {
-        var response = await updateData(formID, formDesc);
-
-        if (response == "ERR_NETWORK") {
-          this.$swal.fire({
-            icon: "warning",
-            title: "Network",
-            text: "Network error when access the server, please try again later or try to relogin !",
-            showConfirmButton: true,
-          });
-          return;
-        }
-
-        if (response.isSuccess) {
-          this.$swal.fire({
-            position: "top-right",
-            icon: "success",
-            title: "Master Form",
-            text: "Data updated",
-            showConfirmButton: false,
-            timer: 800,
-          });
-
-          this.clearModifyScreen();
-          this.enterMode("displayData");
-          this.getData();
-        } else {
-          this.$swal.fire({
-            icon: "warning",
-            title: "Error",
-            text: response.message,
-            showConfirmButton: true,
-          });
-        }
-
-        //set isEditData as false
-        this.isEditData = false;
-      } catch (error) {
-        this.$swal.fire({
-          icon: "error",
-          title: "Error",
-          text: error,
-          showConfirmButton: true,
-        });
-      }
-    },
-    async deleteData(formID) {
-      try {
-        var response = await deleteData(formID);
-
-        if (response == "ERR_NETWORK") {
-          this.$swal.fire({
-            icon: "warning",
-            title: "Network",
-            text: "Network error when access the server, please try again later or try to relogin !",
-            showConfirmButton: true,
-          });
-          return;
-        }
-
-        if (response.isSuccess) {
-          this.$swal.fire({
-            position: "top-right",
-            icon: "success",
-            title: "Master Form",
-            text: "Data deleted",
-            showConfirmButton: false,
-            timer: 800,
-          });
-          await this.getData();
-        } else {
-          this.$swal.fire({
-            icon: "warning",
-            title: "Error",
-            text: response.message,
-            showConfirmButton: true,
-          });
-        }
       } catch (error) {
         this.$swal.fire({
           icon: "error",
@@ -522,9 +334,45 @@ export default {
       }
     },
     checkUserStatus() {
+      this.userid = localStorage.getItem("userID");
       var dept = localStorage.getItem("dept");
       if (dept == "Admin") {
         this.isAdmin = true;
+      }
+    },
+    async checkIsHaveAccess() {
+      try {
+        var formID = "TLoginHistory";
+        var response = await isHaveFormAccess(this.userid, formID);
+
+        if (response == "ERR_NETWORK") {
+          this.$swal.fire({
+            icon: "warning",
+            title: "Network",
+            text: "Network error when access the server, please try again later or try to relogin !",
+            showConfirmButton: true,
+          });
+          return;
+        }
+
+        if (response != "undefined") {
+          if (response.isSuccess) {
+            if (formID == "TLoginHistory") {
+              this.isHaveAccLoginHistory = true;
+            }
+          } else {
+            if (formID == "TLoginHistory") {
+              this.isHaveAccLoginHistory = false;
+            }
+          }
+        }
+      } catch (error) {
+        this.$swal.fire({
+          icon: "error",
+          title: "Error",
+          text: error,
+          showConfirmButton: true,
+        });
       }
     },
   },
@@ -533,6 +381,7 @@ export default {
     this.getData();
     this.getTotalMAUsData();
     this.checkUserStatus();
+    this.checkIsHaveAccess();
   },
 };
 </script>

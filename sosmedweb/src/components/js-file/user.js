@@ -98,3 +98,18 @@ export async function getTotalMAUs() {
     }
   }
 }
+
+export async function getLoginHistoryData(paramYear, paramMonth) {
+  try {
+    const response = await axios.get(`user/GetUserLoginHistoryData?year=${paramYear}&month=${paramMonth}`);
+    return response.data;
+  } catch (error) {
+    // Network error
+    if (error.code === "ERR_NETWORK") {
+      return error.code;
+    } else {
+      // Other errors (e.g., unexpected issues)
+      alert("Group Error getData() :", error.message);
+    }
+  }
+}

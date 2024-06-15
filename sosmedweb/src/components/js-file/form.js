@@ -74,3 +74,19 @@ export async function deleteData(paramFormID) {
     }
   }
 }
+
+export async function getFormDescData(paramFormID) {
+  try {
+    const response = await axios.get(`form/GetFormDesc?formID=${paramFormID}`);
+    return response.data;
+
+  } catch (error) {
+    // Network error
+    if (error.code === "ERR_NETWORK") {
+      return error.code;
+    } else {
+      // Other errors (e.g., unexpected issues)
+      alert("Form Error getData() :", error.message);
+    }
+  }
+}

@@ -9,6 +9,8 @@ import Group from "@/views/masters/Group.vue";
 import GroupAccess from "@/views/masters/GroupAccess.vue";
 import PostingLimit from "@/views/masters/PostingLimit.vue";
 import User from "@/views/masters/User.vue";
+import Posting from "@/views/Posting.vue";
+import LoginHistory from "@/views/UserLoginHistory.vue"
 
 const routes = [
   {
@@ -26,6 +28,8 @@ const routes = [
   { path: "/groupaccess", name: "GroupAccess", component: GroupAccess },
   { path: "/postinglimit", name: "PostingLimit", component: PostingLimit },
   { path: "/user", name: "User", component: User },
+  { path: "/posting", name: "Posting", component: Posting },
+  { path: "/loginhistory", name: "LoginHistory", component: LoginHistory },
   {
     path: "/:pathMatch(.*)*", // Catch-all route for undefined paths
     name: 'NotFound',

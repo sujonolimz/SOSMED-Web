@@ -1,12 +1,12 @@
 <template>
-  <h3>Master Group Access</h3>
+  <h3>{{ formDesc }}</h3>
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
       <li class="breadcrumb-item">
         <router-link class="navbar-brand" to="/">Home</router-link>
       </li>
       <li class="breadcrumb-item active" aria-current="page">
-        Master Group Access
+        {{ formDesc }}
       </li>
     </ol>
   </nav>
@@ -215,7 +215,7 @@ import {
   deleteData,
 } from "@/components/js-file/groupAccess";
 import { getData as getGroupData } from "@/components/js-file/group";
-import { getData as getFormData } from "@/components/js-file/form";
+import { getData as getFormData, getFormDescData } from "@/components/js-file/form";
 import { useRouter } from "vue-router";
 
 export default {
@@ -228,11 +228,13 @@ export default {
       groupIDList: [],
       groupID: "",
       groupDesc: "",
+      formDesc: "Group Access",
       activeTab: "displayData",
       isModifyMode: false,
       isGroupIDdisabled: true,
       isEditData: false,
       allcolumns: [
+        { title: "No", data: "no" },
         { title: "Group ID", data: "groupID" },
         { title: "Group Desc", data: "groupDesc" },
         { title: "Updated By", data: "createdBy" },
@@ -285,7 +287,7 @@ export default {
           // width: "150px",
           render: (data, type, row) => {
             const formID = "edit_" + data.formID.replace(/\s+/g, "");
-console.log(data.formID);
+            console.log(data.formID);
             return `
               <button class="btn btn-sm btn-primary" id="${formID}" data-id="${data.formID}" >Have Access <i class="fas fa-edit"></i></button>
             `;
@@ -479,7 +481,7 @@ console.log(data.formID);
 
       // setTimeout(() => {
       //   // this.message = 'Done!';
-      // }, 4000); 
+      // }, 4000);
     },
     async getData() {
       try {
@@ -545,7 +547,7 @@ console.log(data.formID);
               };
             });
 
-            console.log('below have acc form list')
+            console.log("below have acc form list");
             console.log(haveAccFormList);
             // for (let index = 0; index < haveAccFormList.length; index++) {
             //   const AccFormID = haveAccFormList[index];
@@ -571,7 +573,7 @@ console.log(data.formID);
     },
     async submitData() {
       try {
-        debugger
+        debugger;
         // validation
         if (this.groupID === "") {
           this.$swal.fire({
@@ -782,10 +784,10 @@ console.log(data.formID);
         const selectedData = this.notHaveAccFormList.filter(
           (data) => data.formID === formID
         );
-        
+
         console.log(this.notHaveAccFormList);
-        console.log('below error')
-        console.log(selectedData)
+        console.log("below error");
+        console.log(selectedData);
         //Add data to HaveAccFormList variable
         this.HaveAccFormList.push(selectedData[0]);
 
@@ -921,12 +923,49 @@ console.log(data.formID);
         }
       });
     },
+    async getFormDescData() {
+      try {
+        var response = await getFormDescData('TGroupAccess');
+
+        if (response == "ERR_NETWORK") {
+          this.$swal.fire({
+            icon: "warning",
+            title: "Network",
+            text: "Network error when access the server, please try again later or try to relogin !",
+            showConfirmButton: true,
+          });
+          return;
+        }
+
+        if (response != "undefined") {
+          if (response.isSuccess) {
+
+            //Load data to datatable
+            this.formDesc = response.formDesc;
+          } else {
+            this.$swal.fire({
+              icon: "warning",
+              title: "Error",
+              text: response.message,
+              showConfirmButton: true,
+            });
+          }
+        }
+      } catch (error) {
+        this.$swal.fire({
+          icon: "error",
+          title: "Error",
+          text: error,
+          showConfirmButton: true,
+        });
+      }
+    },
   },
   mounted() {
     //get and load data
     this.getData();
-
     this.getFormData();
+    this.getFormDescData();
 
     // set event for all table
     this.setEventInMainTable();
