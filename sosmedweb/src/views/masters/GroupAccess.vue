@@ -578,7 +578,7 @@ export default {
         if (this.groupID === "") {
           this.$swal.fire({
             icon: "info",
-            title: "Master Group",
+            title: "Master Group Access",
             text: "please select Group ID",
             showConfirmButton: true,
           });
@@ -586,7 +586,7 @@ export default {
         } else if (this.HaveAccFormList.length === 0) {
           this.$swal.fire({
             icon: "info",
-            title: "Master Group",
+            title: "Master Group Access",
             text: "No have form access, please select minimum 1 form",
             showConfirmButton: true,
           });
@@ -753,7 +753,7 @@ export default {
           this.$swal.fire({
             position: "top-right",
             icon: "success",
-            title: "Master Group",
+            title: "Master Group Access",
             text: "Data deleted",
             showConfirmButton: false,
             timer: 800,
@@ -878,7 +878,7 @@ export default {
 
           this.$swal
             .fire({
-              title: "Master Group",
+              title: "Master Group Access",
               text:
                 "Are you sure to delete data with Group ID '" + rowId + "' ?",
               showDenyButton: true,
