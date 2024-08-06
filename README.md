@@ -23,7 +23,5 @@ Need to install
 * Back end source repository can check from here
 [Back End API Repository](https://github.com/sujonolimz/SOSMED.git)
 
-* Application Demo can see from here. [Demo](https://www.notion.so/Sosmed-Web-Application-Documentation-fc5e010e43344258b004a54847d79a51?pvs=4#856e5e0b66704bb2b418e3aa468e7202)
-  
 
 Thank you 
